@@ -1,10 +1,10 @@
-package crawler.legacy;
+package org.sainnr.wgc.crawler.legacy;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-//import org.sainnr.groups.core.graph.Node;
-//import org.sainnr.groups.core.graph.dao.EdgeDAO;
-//import org.sainnr.groups.core.graph.dao.NodeDAO;
+//import org.sainnr.groups.core.org.sainnr.wgc.graph.Node;
+//import org.sainnr.groups.core.org.sainnr.wgc.graph.dao.EdgeDAO;
+//import org.sainnr.groups.core.org.sainnr.wgc.graph.dao.NodeDAO;
 
 import java.util.*;
 
@@ -12,6 +12,7 @@ import java.util.*;
  * @author sainnr
  * @since 30.05.14
  */
+@Deprecated
 public class BulkConsequentLinksParser {
 
     private static final Log log = LogFactory.getLog(BulkConsequentLinksParser.class);

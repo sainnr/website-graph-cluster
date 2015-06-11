@@ -1,7 +1,7 @@
-package crawler.io;
+package org.sainnr.wgc.crawler.io;
 
-import crawler.HyperPage;
-import crawler.HypertextStructure;
+import org.sainnr.wgc.crawler.HyperPage;
+import org.sainnr.wgc.crawler.HypertextStructure;
 
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;

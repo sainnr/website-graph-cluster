@@ -1,4 +1,4 @@
-package graph.io;
+package org.sainnr.wgc.graph.io;
 
 /**
  * Created by Vladimir on 15.05.2015.

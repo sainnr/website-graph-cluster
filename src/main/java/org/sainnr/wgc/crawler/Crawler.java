@@ -1,7 +1,7 @@
-package crawler;
+package org.sainnr.wgc.crawler;
 
-import crawler.parsers.LinkParser;
-import crawler.parsers.MultiParser;
+import org.sainnr.wgc.crawler.parsers.LinkParser;
+import org.sainnr.wgc.crawler.parsers.MultiParser;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 

@@ -1,4 +1,4 @@
-package crawler;
+package org.sainnr.wgc.crawler;
 
 import java.util.Set;
 

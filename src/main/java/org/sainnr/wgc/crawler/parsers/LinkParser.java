@@ -1,4 +1,4 @@
-package crawler.parsers;
+package org.sainnr.wgc.crawler.parsers;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -8,7 +8,6 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
-import java.net.URL;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;

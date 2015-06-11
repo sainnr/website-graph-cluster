@@ -1,6 +1,6 @@
-package crawler.parsers;
+package org.sainnr.wgc.crawler.parsers;
 
-import crawler.HyperPage;
+import org.sainnr.wgc.crawler.HyperPage;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
