@@ -1,4 +1,4 @@
-package org.sainnr.wgc.crawler.parsers;
+package org.sainnr.wgc.hypertext.parsers;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -106,6 +106,10 @@ public class LinkParser {
                         || url.toLowerCase(Locale.ENGLISH).endsWith(".flv")
                         || url.toLowerCase(Locale.ENGLISH).endsWith(".rdf")
                         || url.toLowerCase(Locale.ENGLISH).endsWith(".ttl")
+                        || url.toLowerCase(Locale.ENGLISH).endsWith(".arff")
+                        || url.toLowerCase(Locale.ENGLISH).endsWith(".csv")
+                        || url.toLowerCase(Locale.ENGLISH).endsWith(".xml")
+                        || url.toLowerCase(Locale.ENGLISH).endsWith(".txt")
                         || url.toLowerCase(Locale.ENGLISH).endsWith("#"));
         log.trace(" - is a webpage: " + isWebPage);
         return isWebPage;

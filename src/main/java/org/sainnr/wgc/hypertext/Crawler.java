@@ -1,10 +1,13 @@
-package org.sainnr.wgc.crawler;
+package org.sainnr.wgc.hypertext;
 
-import org.sainnr.wgc.crawler.parsers.LinkParser;
-import org.sainnr.wgc.crawler.parsers.MultiParser;
+import org.sainnr.wgc.hypertext.data.HyperPage;
+import org.sainnr.wgc.hypertext.data.HypertextStructure;
+import org.sainnr.wgc.hypertext.parsers.LinkParser;
+import org.sainnr.wgc.hypertext.parsers.MultiParser;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -13,6 +16,9 @@ import java.util.*;
 public class Crawler {
 
     String domain;
+    String templatePath;
+    String[] reserveTemplatePaths;
+    String encoding;
 
     private static final Log log = LogFactory.getLog(Crawler.class);
 
@@ -20,6 +26,7 @@ public class Crawler {
         this.domain = domain;
     }
 
+    @Deprecated
     public Map<String, Set<String>> fullParseToMap(String startPage){
         long startTime = System.currentTimeMillis();
 
@@ -47,6 +54,7 @@ public class Crawler {
 
     }
 
+    @Deprecated
     public Map<String, Set<String>> singleParseToMap(String startPage){
         long startTime = System.currentTimeMillis();
 
@@ -77,10 +85,18 @@ public class Crawler {
 
         HypertextStructure structure = new HypertextStructure();
         List<String> urlIndex = new ArrayList<String>();
+        List<String> filesIndex = new ArrayList<String>();
         Set<HyperPage> pages = new HashSet<HyperPage>();
 
-        MultiParser parser = new MultiParser(domain, startPage);
-        parser.setTemplatePath("article#content");
+        MultiParser parser = null;
+        try {
+            parser = new MultiParser(domain, startPage, encoding);
+        } catch (IOException e) {
+            log.error("Cannot extract page " + startPage);
+            return null;
+        }
+        parser.setTemplatePath(templatePath);
+        parser.setReserveTemplatePaths(reserveTemplatePaths);
         HyperPage page = parser.parsePage();
         log.trace("Page " + page.getUrl() + " parsed");
 
@@ -89,8 +105,13 @@ public class Crawler {
         pages.add(page);
         log.trace("Page ID " + page.getId());
 
+        // assume all non-parsed as "files"
+        for (String link : page.getOutcomingUrl()) {
+            filesIndex.add(link);
+        }
         structure.setPages(pages);
         structure.setUrlIndex(urlIndex);
+        structure.setFilesIndex(filesIndex);
 
         long endTime = System.currentTimeMillis();
         log.info("Parsing took " + (endTime - startTime) / 1000 + " s");
@@ -102,6 +123,8 @@ public class Crawler {
 
         HypertextStructure structure = new HypertextStructure();
         List<String> urlIndex = new ArrayList<String>();
+        List<String> filesIndex = new ArrayList<String>();
+        List<String> brokenLinks = new ArrayList<String>();
         Set<HyperPage> pages = new HashSet<HyperPage>();
 
         Stack<String> urlStack = new Stack<String>();
@@ -110,7 +133,16 @@ public class Crawler {
 
         while (!urlStack.isEmpty()){
             curUrl = urlStack.pop();
-            HyperPage curPage = parseSinglePage(curUrl);
+            HyperPage curPage = null;
+            try {
+                curPage = parseSinglePage(curUrl);
+            } catch (IOException e) {
+                if (!brokenLinks.contains(curUrl)) {
+                    brokenLinks.add(curUrl);
+                }
+                log.error("Cannot extract page " + curUrl);
+                continue;
+            }
 
             urlIndex.add(curUrl);
             curPage.setId(urlIndex.indexOf(curUrl));
@@ -119,7 +151,7 @@ public class Crawler {
 
             for (String link : curPage.getOutcomingUrl()) {
                 if (!LinkParser.isWebpage(link)){
-                    urlIndex.add(link);
+                    filesIndex.add(link);
                     continue;
                 }
                 if (!urlStack.contains(link) && !urlIndex.contains(link)
@@ -135,18 +167,40 @@ public class Crawler {
 
         structure.setPages(pages);
         structure.setUrlIndex(urlIndex);
+        structure.setFilesIndex(filesIndex);
+        structure.setBrokenUrls(brokenLinks);
 
         long endTime = System.currentTimeMillis();
         log.info("Parsing took " + (endTime - startTime) / 1000 + " s");
         return structure;
     }
 
-    private HyperPage parseSinglePage(String url){
-        MultiParser parser = new MultiParser(domain, url);
-        parser.setTemplatePath("article#content");
+    private HyperPage parseSinglePage(String url) throws IOException {
+        MultiParser parser = new MultiParser(domain, url, encoding);
+        parser.setTemplatePath(templatePath);
+        parser.setReserveTemplatePaths(reserveTemplatePaths);
         HyperPage page = parser.parsePage();
         log.trace("Page " + page.getUrl() + " parsed");
         return page;
     }
 
+    public String getTemplatePath() {
+        return templatePath;
+    }
+
+    public void setTemplatePath(String templatePath) {
+        this.templatePath = templatePath;
+    }
+
+    public String getEncoding() {
+        return encoding;
+    }
+
+    public void setEncoding(String encoding) {
+        this.encoding = encoding;
+    }
+
+    public void setReserveTemplatePaths(String[] reserveTemplatePaths) {
+        this.reserveTemplatePaths = reserveTemplatePaths;
+    }
 }

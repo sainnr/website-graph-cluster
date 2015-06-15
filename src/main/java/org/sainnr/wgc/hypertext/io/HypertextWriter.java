@@ -1,0 +1,187 @@
+package org.sainnr.wgc.hypertext.io;
+
+import org.sainnr.wgc.hypertext.data.HyperPage;
+import org.sainnr.wgc.hypertext.data.HypertextStructure;
+
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
+import java.util.Calendar;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+/**
+ * Created by Vladimir on 15.05.2015.
+ */
+public class HypertextWriter {
+
+    public static final String FOLDER = "hypertext";
+    String domainSuffix;
+
+    public HypertextWriter(String domainSuffix) {
+        this.domainSuffix = domainSuffix;
+    }
+
+    @Deprecated
+    public void writeMap(Map<String, Set<String>> mapToWrite)
+            throws FileNotFoundException, UnsupportedEncodingException {
+        PrintWriter writer = new PrintWriter(getFileName(2), "UTF-8");
+        for (String url : mapToWrite.keySet()){
+            for (String urlTo : mapToWrite.get(url)){
+                writer.println(url + "," + urlTo + ",1.0");
+            }
+        }
+        writer.close();
+    }
+
+    public String writeMapIds(HypertextStructure structureToWrite)
+            throws FileNotFoundException, UnsupportedEncodingException {
+        String filename = getFileName(1);
+        PrintWriter writer = new PrintWriter(filename, "UTF-8");
+        Set<HyperPage> pagesToWrite = structureToWrite.getPages();
+        List<String> urlIndex = structureToWrite.getUrlIndex();
+        for (HyperPage page : pagesToWrite){
+            for (String urlTo : page.getOutcomingUrl()){
+                writer.println(page.getId() + "," + urlIndex.indexOf(urlTo) + "," + page.getWeight(urlTo));
+            }
+        }
+        writer.close();
+        return filename;
+    }
+
+    public String writeIndex(HypertextStructure structureToWrite)
+            throws FileNotFoundException, UnsupportedEncodingException {
+        String filename = getFileName(4);
+        PrintWriter writer = new PrintWriter(filename, "UTF-8");
+        for (String url : structureToWrite.getUrlIndex()){
+            writer.println("\"" + url + "\"," + structureToWrite.getUrlIndex().indexOf(url));
+        }
+        writer.close();
+        return filename;
+    }
+
+    public String writeBrokenLinks(HypertextStructure structureToWrite)
+            throws FileNotFoundException, UnsupportedEncodingException {
+        String filename = getFileName(5);
+        PrintWriter writer = new PrintWriter(filename, "UTF-8");
+        for (String url : structureToWrite.getBrokenUrls()){
+            writer.println("\"" + url + "\"," + structureToWrite.getBrokenUrls().indexOf(url));
+        }
+        writer.close();
+        return filename;
+    }
+
+    public String writeMapUrl(HypertextStructure structureToWrite)
+            throws FileNotFoundException, UnsupportedEncodingException {
+        String filename = getFileName(1);
+        PrintWriter writer = new PrintWriter(filename, "UTF-8");
+        Set<HyperPage> pagesToWrite = structureToWrite.getPages();
+        List<String> urlIndex = structureToWrite.getUrlIndex();
+        for (HyperPage page : pagesToWrite){
+            for (String urlTo : page.getOutcomingUrl()){
+//                if (urlIndex.contains(urlTo)) {
+                    writer.println("\"" + page.getUrl() + "\",\"" + urlTo + "\"," + page.getWeight(urlTo));
+//                }
+            }
+        }
+        writer.close();
+        return filename;
+    }
+
+    public String writeCarrot2XML(HypertextStructure structureToWrite)
+            throws FileNotFoundException, UnsupportedEncodingException {
+        String filename = getFileName(2);
+        PrintWriter writer = new PrintWriter(filename, "UTF-8");
+        writer.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+        writer.println("<searchresult>");
+        Set<HyperPage> pagesToWrite = structureToWrite.getPages();
+        for (HyperPage page : pagesToWrite){
+            writer.println("  <document id=\"" + page.getId() + "\">");
+            writer.println("     <title>" + page.getTitle() + "</title>");
+            writer.println("     <url>" + page.getUrl() + "</url>");
+            writer.println("     <snippet>" + page.getContent() + "</snippet>");
+            writer.println("  </document>");
+        }
+        writer.println("</searchresult>");
+        writer.close();
+        return filename;
+    }
+
+    public String writeGEXF(HypertextStructure structureToWrite)
+            throws FileNotFoundException, UnsupportedEncodingException {
+        String filename = getFileName(3);
+        PrintWriter writer = new PrintWriter(filename, "UTF-8");
+        writer.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+        writer.println("<gexf xmlns=\"http://www.gexf.net/1.2draft\" version=\"1.2\">");
+        writer.println("<graph defaultedgetype=\"directed\">");
+
+        Set<HyperPage> pagesToWrite = structureToWrite.getPages();
+        List<String> urlIndex = structureToWrite.getUrlIndex();
+        List<String> filesIndex = structureToWrite.getFilesIndex();
+        writer.println("\t<nodes>");
+        for (HyperPage page : pagesToWrite){
+            writer.println("\t\t<node id=\"" + page.getId() + "\" label=\"" + page.getUrl() + "\"/>");
+        }
+        int maxUrlsIndex = urlIndex.size();
+        for (String file : filesIndex){
+            writer.println("\t\t<node id=\"" + (filesIndex.indexOf(file) + maxUrlsIndex)
+                    + "\" label=\"" + file + "\"/>");
+        }
+        writer.println("\t</nodes>");
+        writer.println("\t<edges>");
+        int i = 0;
+        for (HyperPage page : pagesToWrite){
+            for (String urlTo : page.getOutcomingUrl()) {
+                writer.println("\t\t<edge id=\"" + i +
+                        "\" source=\"" + page.getId() +
+                        "\" target=\"" + (urlIndex.contains(urlTo)
+                            ? urlIndex.indexOf(urlTo)
+                            : (filesIndex.indexOf(urlTo) + maxUrlsIndex)) +
+                        "\" weight=\"" + page.getWeight(urlTo) + "\"/>");
+                i++;
+            }
+        }
+        writer.println("\t</edges>");
+        writer.println("</graph>");
+        writer.println("</gexf>");
+        writer.close();
+        return filename;
+    }
+
+    private String getFileName(int type){
+        long time = Calendar.getInstance().getTime().getTime() / 1000;
+        String suffix = "";
+        String ext = "txt";
+        switch(type){
+            case 1: {
+                suffix = "cm";
+                ext = "csv";
+                break;
+            }
+            case 2: {
+                suffix = "cc2";
+                ext = "xml";
+                break;
+            }
+            case 3: {
+                suffix = "cgf";
+                ext = "gexf";
+                break;
+            }
+            case 4: {
+                suffix = "index";
+                ext = "csv";
+                break;
+            }
+            case 5: {
+                suffix = "broken";
+                ext = "csv";
+                break;
+            }
+            default:
+        }
+        return FOLDER + "/" +
+                "ht_" + suffix + "_" + domainSuffix.replace(".","") + "_" + time + "." + ext;
+    }
+}

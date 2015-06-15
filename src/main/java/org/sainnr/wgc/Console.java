@@ -1,12 +1,16 @@
 package org.sainnr.wgc;
 
-import org.sainnr.wgc.crawler.Crawler;
-import org.sainnr.wgc.crawler.HyperPage;
-import org.sainnr.wgc.crawler.HypertextStructure;
-import org.sainnr.wgc.crawler.io.HypertextWriter;
+import org.sainnr.wgc.hypertext.Crawler;
+import org.sainnr.wgc.hypertext.WeightsApplier;
+import org.sainnr.wgc.hypertext.data.HypertextStructure;
+import org.sainnr.wgc.hypertext.io.HypertextReader;
+import org.sainnr.wgc.hypertext.io.HypertextWriter;
 import org.apache.log4j.*;
+import org.sainnr.wgc.statistics.data.GaVisitedPagesStructure;
+import org.sainnr.wgc.statistics.io.GaDataReader;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -28,62 +32,66 @@ public class Console {
         rootLogger.addAppender(appender);
     }
 
-    public static void main(String[] args) throws FileNotFoundException, UnsupportedEncodingException {
+    public static void main(String[] args) throws IOException {
         setLogger();
-        testCrawlFullToXML();
+        testCrawlFull();
     }
 
-    private static void testCrawlSingleToMap() throws FileNotFoundException, UnsupportedEncodingException {
-        String domain = "aksw.org";
-        String url = "http://" + domain + "/";
-        Crawler crawler = new Crawler(domain);
-        Map<String, Set<String>> results = crawler.singleParseToMap(url);
-        HypertextWriter writer = new HypertextWriter();
-        writer.writeMap(results);
-        System.out.println("Results: " + results.keySet().size());
-        for (String key : results.keySet()){
-            System.out.println(key);
-        }
+    private static void testWriter() throws FileNotFoundException, UnsupportedEncodingException {
+        String domain = "example.org";
+        HypertextWriter writer = new HypertextWriter(domain);
+        writer.writeMap(testMap());
     }
 
-    private static void testCrawlFullToMap() throws FileNotFoundException, UnsupportedEncodingException {
-        String domain = "aksw.org";
+    private static void testCrawlFull() throws FileNotFoundException, UnsupportedEncodingException {
+//        String domain = "aksw.org";
+        String domain = "sstu.ru";
         String url = "http://" + domain + "/";
         Crawler crawler = new Crawler(domain);
-        Map<String, Set<String>> results = crawler.fullParseToMap(url);
-        HypertextWriter writer = new HypertextWriter();
-        writer.writeMap(results);
-        System.out.println("Results: " + results.keySet().size());
-        for (String key : results.keySet()){
-            System.out.println(key);
-        }
-    }
-
-    private static void testCrawlSingleToXML() throws FileNotFoundException, UnsupportedEncodingException {
-        String domain = "aksw.org";
-        String url = "http://" + domain + "/";
-        Crawler crawler = new Crawler(domain);
-        HypertextStructure structure = crawler.singleParseToHyperStructure(url);
-        HypertextWriter writer = new HypertextWriter();
-        writer.writeCarrot2XML(structure);
-        System.out.println("Results: " + structure.getPages().size());
-        for (HyperPage page : structure.getPages()){
-            System.out.println(page.getId() + ": " + page.getUrl());
-        }
-    }
-
-    private static void testCrawlFullToXML() throws FileNotFoundException, UnsupportedEncodingException {
-        String domain = "aksw.org";
-        String url = "http://" + domain + "/";
-        Crawler crawler = new Crawler(domain);
+//        crawler.setTemplatePath("article#content");
+        crawler.setTemplatePath("div.page-container");
+        crawler.setReserveTemplatePaths(new String[]{"div#content"});
         HypertextStructure structure = crawler.fullParseToHyperStructure(url);
-        HypertextWriter writer = new HypertextWriter();
+        HypertextWriter writer = new HypertextWriter(domain);
         writer.writeCarrot2XML(structure);
         writer.writeMapUrl(structure);
+        writer.writeGEXF(structure);
+        writer.writeBrokenLinks(structure);
         System.out.println("Results: " + structure.getPages().size());
-        for (HyperPage page : structure.getPages()){
-            System.out.println(page.getId() + ": " + page.getUrl());
-        }
+        System.out.println(structure);
+    }
+
+    public static void testCrawlSingle() throws FileNotFoundException, UnsupportedEncodingException {
+        String domain = "sstu.ru";
+        String url = "http://" + domain + "/";
+        Crawler crawler = new Crawler(domain);
+        crawler.setEncoding("UTF-8");
+//        crawler.setTemplatePath("article#content");
+        crawler.setTemplatePath("div.page-container");
+        HypertextStructure structure = crawler.singleParseToHyperStructure(url);
+        HypertextWriter writer = new HypertextWriter(domain);
+        writer.writeCarrot2XML(structure);
+        writer.writeGEXF(structure);
+    }
+
+    public static void testHypertextReader() throws IOException {
+        String filename = "hypertext/ht_cm_aksworg_1434152972.csv";
+        HypertextStructure structure = (new HypertextReader()).readCSVUrlMapToHypertext(filename);
+        (new HypertextWriter("aksw.org")).writeGEXF(structure);
+//        System.out.println(structure);
+    }
+
+    public static void testApplyWeights() throws IOException {
+        String domain = "aksw.org";
+//        String htFile = "hypertext/ht_cm_aksworg_1434152972.csv";
+        String htFile = "hypertext/ht_cm_aksworg_1434327226.csv"; // full
+        String gaFile = "gadata/ga_visited_aksworg_2010-01-01_2015-06-12.csv";
+        HypertextStructure ht = (new HypertextReader()).readCSVUrlMapToHypertext(htFile);
+//        System.out.println(ht);
+        GaVisitedPagesStructure ga = (new GaDataReader(domain)).readCSVVisitedPages(gaFile);
+//        System.out.println(ga);
+        ht = (new WeightsApplier(ht, domain)).applyWeights(ga);
+        (new HypertextWriter(domain)).writeGEXF(ht);
     }
 
     private static Map<String, Set<String>> testMap(){

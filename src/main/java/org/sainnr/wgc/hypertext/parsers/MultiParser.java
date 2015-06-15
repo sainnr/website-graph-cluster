@@ -1,6 +1,6 @@
-package org.sainnr.wgc.crawler.parsers;
+package org.sainnr.wgc.hypertext.parsers;
 
-import org.sainnr.wgc.crawler.HyperPage;
+import org.sainnr.wgc.hypertext.data.HyperPage;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -21,30 +21,31 @@ public class MultiParser {
 
     private static Log log = LogFactory.getLog(MultiParser.class);
     String templatePath;
+    String[] reserveTemplatePaths;
     String domain;
     String pageUrl;
     String encoding = "UTF-8";
     Document doc;
 
-    public MultiParser(String domain, String pageUrl) {
+    public MultiParser(String domain, String pageUrl) throws IOException {
         this.domain = domain;
         this.pageUrl = pageUrl;
         init();
     }
 
-    public MultiParser(String domain, String pageUrl, String encoding) {
+    public MultiParser(String domain, String pageUrl, String encoding) throws IOException {
         this.domain = domain;
         this.pageUrl = pageUrl;
         this.encoding = encoding;
         init();
     }
 
-    private void init(){
+    private void init() throws IOException {
         try {
             this.doc = Jsoup.parse(new URL(pageUrl).openStream(), encoding, pageUrl);
         } catch (IOException ex) {
-            log.error("Error while extracting texts on page: " + pageUrl, ex);
-            throw new RuntimeException("Connection problems? ", ex);
+            log.error("Error while extracting page: " + pageUrl, ex);
+            throw new IOException("Connection problems? ", ex);
         }
     }
 
@@ -89,13 +90,30 @@ public class MultiParser {
         String uniteText = "";
         Elements texts = doc.select(templatePath);
         if (texts != null) {
-            log.info("Els found: " + texts.size());
-            for (Element text : texts) {
-                uniteText += text.text() + " ";
+            log.info("Texts found with " + templatePath + " : " + texts.size());
+            if (texts.size() > 0) {
+                for (Element text : texts) {
+                    uniteText += text.text() + " ";
+                }
+            } else if (reserveTemplatePaths != null && reserveTemplatePaths.length > 0) {
+                for (String path : reserveTemplatePaths){
+                    texts = doc.select(path);
+                    if (texts == null){
+                        continue;
+                    }
+                    log.info("Texts found with reserve " + path + " : " + texts.size());
+                    for (Element text : texts) {
+                        uniteText += text.text() + " ";
+                    }
+                    if (texts.size() > 0){
+                        break;
+                    }
+                }
             }
         } else {
             log.warn("No texts found");
         }
+        log.trace(uniteText);
         return StringEscapeUtils.escapeXml(uniteText);
     }
 
@@ -113,5 +131,7 @@ public class MultiParser {
         return StringEscapeUtils.escapeXml(fullTitle);
     }
 
-
+    public void setReserveTemplatePaths(String[] reserveTemplatePaths) {
+        this.reserveTemplatePaths = reserveTemplatePaths;
+    }
 }

@@ -1,4 +1,4 @@
-package org.sainnr.wgc.crawler.legacy;
+package org.sainnr.wgc.hypertext.legacy;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

@@ -1,5 +1,7 @@
-package org.sainnr.wgc.crawler;
+package org.sainnr.wgc.hypertext.data;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -12,6 +14,7 @@ public class HyperPage {
     String title;
     String content;
     Set<String> outcomingUrl;
+    Map<String, Double> weights = new HashMap<String, Double>();
 
     public void setId(int id) {
         this.id = id;
@@ -53,6 +56,17 @@ public class HyperPage {
         this.outcomingUrl = outcomingUrl;
     }
 
+    public double getWeight(String toUrl) {
+        if (weights.get(toUrl) == null){
+            return 1.0;
+        }
+        return weights.get(toUrl);
+    }
+
+    public void setWeight(String toUrl, double weight) {
+        this.weights.put(toUrl, weight);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -67,5 +81,14 @@ public class HyperPage {
     @Override
     public int hashCode() {
         return url.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return "HyperPage{" +
+                "id=" + id +
+                ", url='" + url + '\'' +
+                ", outcomingUrl=" + outcomingUrl +
+                '}';
     }
 }
