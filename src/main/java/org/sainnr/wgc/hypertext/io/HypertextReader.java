@@ -17,6 +17,7 @@ public class HypertextReader {
         BufferedReader reader = new BufferedReader(new FileReader(file));
         Map<String, Set<String>> pages = new HashMap<String, Set<String>>();
         List<String> urlIndex = new ArrayList<String>();
+        List<String> filesIndex = new ArrayList<String>();
         Set<HyperPage> pageSet = new HashSet<HyperPage>();
         String line;
         while ((line = reader.readLine()) != null){
@@ -35,6 +36,9 @@ public class HypertextReader {
             if (!urlIndex.contains(fromUrl)) {
                 urlIndex.add(fromUrl);
             }
+            if (!urlIndex.contains(toUrl)) {
+                filesIndex.add(toUrl);
+            }
 
             HyperPage page = new HyperPage();
             page.setId(urlIndex.indexOf(fromUrl));
@@ -43,8 +47,14 @@ public class HypertextReader {
             page.setWeight(toUrl, weight);
             pageSet.add(page);
         }
+        for (String url: urlIndex){
+            if (filesIndex.contains(url)){
+                filesIndex.remove(url);
+            }
+        }
         HypertextStructure structure = new HypertextStructure();
         structure.setUrlIndex(urlIndex);
+        structure.setFilesIndex(filesIndex);
         structure.setPages(pageSet);
         return structure;
     }

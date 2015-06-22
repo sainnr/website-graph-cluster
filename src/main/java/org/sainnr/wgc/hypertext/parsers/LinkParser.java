@@ -110,6 +110,9 @@ public class LinkParser {
                         || url.toLowerCase(Locale.ENGLISH).endsWith(".csv")
                         || url.toLowerCase(Locale.ENGLISH).endsWith(".xml")
                         || url.toLowerCase(Locale.ENGLISH).endsWith(".txt")
+                        || url.toLowerCase(Locale.ENGLISH).endsWith(".rtf")
+                        || url.toLowerCase(Locale.ENGLISH).endsWith(".jpeg")
+                        || url.toLowerCase(Locale.ENGLISH).endsWith(".pps")
                         || url.toLowerCase(Locale.ENGLISH).endsWith("#"));
         log.trace(" - is a webpage: " + isWebPage);
         return isWebPage;

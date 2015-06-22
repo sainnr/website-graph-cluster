@@ -26,6 +26,7 @@ public class MultiParser {
     String pageUrl;
     String encoding = "UTF-8";
     Document doc;
+    boolean skipText;
 
     public MultiParser(String domain, String pageUrl) throws IOException {
         this.domain = domain;
@@ -42,7 +43,8 @@ public class MultiParser {
 
     private void init() throws IOException {
         try {
-            this.doc = Jsoup.parse(new URL(pageUrl).openStream(), encoding, pageUrl);
+//            this.doc = Jsoup.parse(new URL(pageUrl).openStream(), encoding, pageUrl);
+            this.doc = Jsoup.connect(pageUrl).timeout(3000).get();
         } catch (IOException ex) {
             log.error("Error while extracting page: " + pageUrl, ex);
             throw new IOException("Connection problems? ", ex);
@@ -57,7 +59,9 @@ public class MultiParser {
         HyperPage page = new HyperPage();
         page.setUrl(pageUrl);
         page.setTitle(getTitleFromPage());
-        page.setContent(getUniteTextBlockFromPage());
+        if (!skipText) {
+            page.setContent(getUniteTextBlockFromPage());
+        }
         page.setOutcomingUrl(getLinksFromPage());
         return page;
     }
@@ -133,5 +137,9 @@ public class MultiParser {
 
     public void setReserveTemplatePaths(String[] reserveTemplatePaths) {
         this.reserveTemplatePaths = reserveTemplatePaths;
+    }
+
+    public void setSkipText(boolean skipText) {
+        this.skipText = skipText;
     }
 }

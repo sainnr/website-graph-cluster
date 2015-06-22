@@ -6,6 +6,7 @@ import org.sainnr.wgc.hypertext.data.HypertextStructure;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
@@ -99,7 +100,7 @@ public class HypertextWriter {
         for (HyperPage page : pagesToWrite){
             writer.println("  <document id=\"" + page.getId() + "\">");
             writer.println("     <title>" + page.getTitle() + "</title>");
-            writer.println("     <url>" + page.getUrl() + "</url>");
+            writer.println("     <url>" + URLEncoder.encode(page.getUrl(), "UTF-8") + "</url>");
             writer.println("     <snippet>" + page.getContent() + "</snippet>");
             writer.println("  </document>");
         }
@@ -121,23 +122,32 @@ public class HypertextWriter {
         List<String> filesIndex = structureToWrite.getFilesIndex();
         writer.println("\t<nodes>");
         for (HyperPage page : pagesToWrite){
-            writer.println("\t\t<node id=\"" + page.getId() + "\" label=\"" + page.getUrl() + "\"/>");
+            writer.println("\t\t<node id=\"" + page.getId()
+                    + "\" label=\"" + URLEncoder.encode(page.getUrl(), "UTF-8") + "\"/>");
         }
         int maxUrlsIndex = urlIndex.size();
-        for (String file : filesIndex){
-            writer.println("\t\t<node id=\"" + (filesIndex.indexOf(file) + maxUrlsIndex)
-                    + "\" label=\"" + file + "\"/>");
+        if (filesIndex != null) {
+            for (String file : filesIndex) {
+                writer.println("\t\t<node id=\"" + (filesIndex.indexOf(file) + maxUrlsIndex)
+                        + "\" label=\"" + URLEncoder.encode(file, "UTF-8") + "\"/>");
+            }
         }
         writer.println("\t</nodes>");
         writer.println("\t<edges>");
         int i = 0;
         for (HyperPage page : pagesToWrite){
             for (String urlTo : page.getOutcomingUrl()) {
+                int targetId;
+                if (urlIndex.contains(urlTo)) {
+                    targetId = urlIndex.indexOf(urlTo);
+                } else if (filesIndex != null && filesIndex.contains(urlTo)){
+                    targetId = filesIndex.indexOf(urlTo) + maxUrlsIndex;
+                } else {
+                    targetId = -1;
+                }
                 writer.println("\t\t<edge id=\"" + i +
                         "\" source=\"" + page.getId() +
-                        "\" target=\"" + (urlIndex.contains(urlTo)
-                            ? urlIndex.indexOf(urlTo)
-                            : (filesIndex.indexOf(urlTo) + maxUrlsIndex)) +
+                        "\" target=\"" + targetId +
                         "\" weight=\"" + page.getWeight(urlTo) + "\"/>");
                 i++;
             }

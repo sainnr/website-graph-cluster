@@ -1,4 +1,0 @@
-str2,strA,1.0
-str2,strB,1.0
-str1,strA,1.0
-str1,strB,1.0

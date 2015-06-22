@@ -24,7 +24,7 @@ public class Console {
 
     private static final String DEFAULT_PATTERN_LAYOUT = "%d{dd.MM.yyyy HH:mm:ss.SSS} [%-5p] <%c{1}> - %m%n";
 
-    private static void setLogger() {
+    private static void setConsoleLogger() {
         PatternLayout pattern = new PatternLayout(DEFAULT_PATTERN_LAYOUT);
         ConsoleAppender appender = new ConsoleAppender(pattern);
         Logger rootLogger = Logger.getRootLogger();
@@ -32,9 +32,17 @@ public class Console {
         rootLogger.addAppender(appender);
     }
 
+    private static void setFileLogger() throws IOException {
+        PatternLayout pattern = new PatternLayout(DEFAULT_PATTERN_LAYOUT);
+        RollingFileAppender appender = new RollingFileAppender(pattern, "logs/console.log");
+        Logger rootLogger = Logger.getRootLogger();
+        rootLogger.setLevel(Level.INFO);
+        rootLogger.addAppender(appender);
+    }
+
     public static void main(String[] args) throws IOException {
-        setLogger();
-        testCrawlFull();
+        setFileLogger();
+        testHypertextReader();
     }
 
     private static void testWriter() throws FileNotFoundException, UnsupportedEncodingException {
@@ -51,14 +59,15 @@ public class Console {
 //        crawler.setTemplatePath("article#content");
         crawler.setTemplatePath("div.page-container");
         crawler.setReserveTemplatePaths(new String[]{"div#content"});
+        crawler.setSkipText(true);
         HypertextStructure structure = crawler.fullParseToHyperStructure(url);
         HypertextWriter writer = new HypertextWriter(domain);
-        writer.writeCarrot2XML(structure);
         writer.writeMapUrl(structure);
         writer.writeGEXF(structure);
         writer.writeBrokenLinks(structure);
+        writer.writeCarrot2XML(structure);
         System.out.println("Results: " + structure.getPages().size());
-        System.out.println(structure);
+//        System.out.println(structure);
     }
 
     public static void testCrawlSingle() throws FileNotFoundException, UnsupportedEncodingException {
@@ -75,9 +84,13 @@ public class Console {
     }
 
     public static void testHypertextReader() throws IOException {
-        String filename = "hypertext/ht_cm_aksworg_1434152972.csv";
+//        String filename = "hypertext/ht_cm_ssturu_1434612250.csv";
+        String filename = "hypertext/pagegroups.csv";
         HypertextStructure structure = (new HypertextReader()).readCSVUrlMapToHypertext(filename);
-        (new HypertextWriter("aksw.org")).writeGEXF(structure);
+        HypertextWriter writer = new HypertextWriter("sstu.ru");
+        writer.writeIndex(structure);
+        writer.writeMapIds(structure);
+        writer.writeGEXF(structure);
 //        System.out.println(structure);
     }
 

@@ -19,6 +19,7 @@ public class Crawler {
     String templatePath;
     String[] reserveTemplatePaths;
     String encoding;
+    boolean skipText;
 
     private static final Log log = LogFactory.getLog(Crawler.class);
 
@@ -97,6 +98,7 @@ public class Crawler {
         }
         parser.setTemplatePath(templatePath);
         parser.setReserveTemplatePaths(reserveTemplatePaths);
+        parser.setSkipText(skipText);
         HyperPage page = parser.parsePage();
         log.trace("Page " + page.getUrl() + " parsed");
 
@@ -132,14 +134,18 @@ public class Crawler {
         String curUrl;
 
         while (!urlStack.isEmpty()){
+            log.info("Remaining stack size: " + urlStack.size());
             curUrl = urlStack.pop();
             HyperPage curPage = null;
             try {
-                curPage = parseSinglePage(curUrl);
-            } catch (IOException e) {
                 if (!brokenLinks.contains(curUrl)) {
-                    brokenLinks.add(curUrl);
+                    curPage = parseSinglePage(curUrl);
+                } else {
+                    log.trace("Skipping failed url: " + curUrl);
+                    continue;
                 }
+            } catch (IOException e) {
+                brokenLinks.add(curUrl);
                 log.error("Cannot extract page " + curUrl);
                 continue;
             }
@@ -151,7 +157,9 @@ public class Crawler {
 
             for (String link : curPage.getOutcomingUrl()) {
                 if (!LinkParser.isWebpage(link)){
-                    filesIndex.add(link);
+                    if (!filesIndex.contains(link)) {
+                        filesIndex.add(link);
+                    }
                     continue;
                 }
                 if (!urlStack.contains(link) && !urlIndex.contains(link)
@@ -179,6 +187,7 @@ public class Crawler {
         MultiParser parser = new MultiParser(domain, url, encoding);
         parser.setTemplatePath(templatePath);
         parser.setReserveTemplatePaths(reserveTemplatePaths);
+        parser.setSkipText(skipText);
         HyperPage page = parser.parsePage();
         log.trace("Page " + page.getUrl() + " parsed");
         return page;
@@ -202,5 +211,9 @@ public class Crawler {
 
     public void setReserveTemplatePaths(String[] reserveTemplatePaths) {
         this.reserveTemplatePaths = reserveTemplatePaths;
+    }
+
+    public void setSkipText(boolean skipText) {
+        this.skipText = skipText;
     }
 }
