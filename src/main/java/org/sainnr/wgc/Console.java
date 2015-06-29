@@ -1,5 +1,7 @@
 package org.sainnr.wgc;
 
+import org.sainnr.wgc.clustering.ClusteringAlgorithm;
+import org.sainnr.wgc.clustering.io.ClusterWriter;
 import org.sainnr.wgc.hypertext.Crawler;
 import org.sainnr.wgc.hypertext.WeightsApplier;
 import org.sainnr.wgc.hypertext.data.HypertextStructure;
@@ -8,6 +10,7 @@ import org.sainnr.wgc.hypertext.io.HypertextWriter;
 import org.apache.log4j.*;
 import org.sainnr.wgc.statistics.data.GaVisitedPagesStructure;
 import org.sainnr.wgc.statistics.io.GaDataReader;
+import prefuse.data.Table;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -42,7 +45,7 @@ public class Console {
 
     public static void main(String[] args) throws IOException {
         setFileLogger();
-        testHypertextReader();
+        testClustering();
     }
 
     private static void testWriter() throws FileNotFoundException, UnsupportedEncodingException {
@@ -115,5 +118,19 @@ public class Console {
         testMap.put("str1", testSet);
         testMap.put("str2", testSet);
         return testMap;
+    }
+
+    private static void testClustering() throws FileNotFoundException, UnsupportedEncodingException {
+        String htFile = "hypertext/ht_cm_aksworg_1434527868.csv";
+        String domain = "aksw.org";
+        double threshold = 1.0;
+        String[] params = new String[4];
+        params[0] = "Superset";
+        params[1] = "on";
+        params[2] = "on";
+        params[3] = "on";
+        ClusteringAlgorithm algo = new ClusteringAlgorithm(ClusteringAlgorithm.Algorithm.BF, htFile);
+        Table results = algo.cluster(threshold, params);
+        (new ClusterWriter(domain)).write(results);
     }
 }
