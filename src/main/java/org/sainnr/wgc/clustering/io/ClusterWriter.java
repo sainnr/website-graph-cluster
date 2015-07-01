@@ -53,7 +53,6 @@ public class ClusterWriter {
 
         //0-clusters
 
-
 //        for (int i = 0; i < cols; i++) {
 //            writer.print("\"" + table.getColumnName(i) + "\"");
 //            if (i != (cols - 1)) {
