@@ -19,8 +19,8 @@ public class ClusterWriter {
         this.domainString = domainString;
     }
 
-    public String write(Table table) throws FileNotFoundException, UnsupportedEncodingException {
-        String filename = getFilename();
+    public String writeCugarClustersPlain(Table table) throws FileNotFoundException, UnsupportedEncodingException {
+        String filename = getFilename(0);
         PrintWriter writer = new PrintWriter(filename, "UTF-8");
         int rows = table.getRowCount();
         int cols = table.getColumnCount();
@@ -34,7 +34,7 @@ public class ClusterWriter {
         writer.println();
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {
-                writer.print("\""+ table.get(i, j) + "\"");
+                writer.print("\"" + table.get(i, j) + "\"");
                 if (j != (cols - 1)) {
                     writer.print(",");
                 }
@@ -45,9 +45,47 @@ public class ClusterWriter {
         return filename;
     }
 
-    private String getFilename(){
+    public String writeCugarClustersXML(Table table) throws FileNotFoundException, UnsupportedEncodingException {
+        String filename = getFilename(1);
+        PrintWriter writer = new PrintWriter(filename, "UTF-8");
+        int rows = table.getRowCount();
+        int cols = table.getColumnCount();
+
+        //0-clusters
+
+
+//        for (int i = 0; i < cols; i++) {
+//            writer.print("\"" + table.getColumnName(i) + "\"");
+//            if (i != (cols - 1)) {
+//                writer.print(",");
+//            }
+//        }
+//        writer.println();
+//        for (int i = 0; i < rows; i++) {
+//            for (int j = 0; j < cols; j++) {
+//                writer.print("\"" + table.get(i, j) + "\"");
+//                if (j != (cols - 1)) {
+//                    writer.print(",");
+//                }
+//            }
+//            writer.println();
+//        }
+        writer.close();
+        return filename;
+    }
+
+    private String getFilename(int option){
         long time = Calendar.getInstance().getTime().getTime() / 1000;
+        String ext = "";
+        switch (option){
+            case 0:
+                ext = ".csv";
+                break;
+            case 1:
+                ext = ".xml";
+                break;
+        }
         return FOLDER + "/" +
-                "clust_" + domainString.replace(".","") + "_" + time + ".csv";
+                "clust_" + domainString.replace(".","") + "_" + time + ext;
     }
 }

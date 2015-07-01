@@ -5,6 +5,8 @@ import org.sainnr.wgc.clustering.io.ClusterWriter;
 import org.sainnr.wgc.hypertext.Crawler;
 import org.sainnr.wgc.hypertext.WeightsApplier;
 import org.sainnr.wgc.hypertext.data.HypertextStructure;
+import org.sainnr.wgc.hypertext.io.DBConnector;
+import org.sainnr.wgc.hypertext.io.DBLoader;
 import org.sainnr.wgc.hypertext.io.HypertextReader;
 import org.sainnr.wgc.hypertext.io.HypertextWriter;
 import org.apache.log4j.*;
@@ -45,7 +47,7 @@ public class Console {
 
     public static void main(String[] args) throws IOException {
         setFileLogger();
-        testClustering();
+        testDBLoad();
     }
 
     private static void testWriter() throws FileNotFoundException, UnsupportedEncodingException {
@@ -120,17 +122,15 @@ public class Console {
         return testMap;
     }
 
-    private static void testClustering() throws FileNotFoundException, UnsupportedEncodingException {
-        String htFile = "hypertext/ht_cm_aksworg_1434527868.csv";
-        String domain = "aksw.org";
-        double threshold = 1.0;
-        String[] params = new String[4];
-        params[0] = "Superset";
-        params[1] = "on";
-        params[2] = "on";
-        params[3] = "on";
-        ClusteringAlgorithm algo = new ClusteringAlgorithm(ClusteringAlgorithm.Algorithm.BF, htFile);
-        Table results = algo.cluster(threshold, params);
-        (new ClusterWriter(domain)).write(results);
+    static void testDBLoad() throws FileNotFoundException, UnsupportedEncodingException {
+//        String domain = "aksw.org";
+        String domain = "sstu.ru";
+        DBConnector.setDefaultDBName(domain);
+        HypertextStructure structure = (new DBLoader()).loadHypertext();
+        HypertextWriter writer = new HypertextWriter(domain);
+//        writer.writeMapUrl(structure);
+//        writer.writeCarrot2XML(structure);
+        writer.writeGEXF(structure);
+        writer.writeIndex(structure);
     }
 }

@@ -1,5 +1,7 @@
 package org.sainnr.wgc.hypertext.io;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sainnr.wgc.hypertext.data.HyperPage;
 import org.sainnr.wgc.hypertext.data.HypertextStructure;
 
@@ -17,6 +19,7 @@ import java.util.Set;
  */
 public class HypertextWriter {
 
+    private static final Log log = LogFactory.getLog(HypertextWriter.class);
     public static final String FOLDER = "hypertext";
     String domainSuffix;
 
@@ -76,10 +79,15 @@ public class HypertextWriter {
     public String writeMapUrl(HypertextStructure structureToWrite)
             throws FileNotFoundException, UnsupportedEncodingException {
         String filename = getFileName(1);
+        log.trace("Writing to: " + filename);
         PrintWriter writer = new PrintWriter(filename, "UTF-8");
         Set<HyperPage> pagesToWrite = structureToWrite.getPages();
-        List<String> urlIndex = structureToWrite.getUrlIndex();
+//        List<String> urlIndex = structureToWrite.getUrlIndex();
         for (HyperPage page : pagesToWrite){
+            log.trace("Writing page: " + page.getUrl());
+            if (page.getOutcomingUrl() == null){
+                continue;
+            }
             for (String urlTo : page.getOutcomingUrl()){
 //                if (urlIndex.contains(urlTo)) {
                     writer.println("\"" + page.getUrl() + "\",\"" + urlTo + "\"," + page.getWeight(urlTo));
@@ -101,7 +109,8 @@ public class HypertextWriter {
             writer.println("  <document id=\"" + page.getId() + "\">");
             writer.println("     <title>" + page.getTitle() + "</title>");
             writer.println("     <url>" + URLEncoder.encode(page.getUrl(), "UTF-8") + "</url>");
-            writer.println("     <snippet>" + page.getContent() + "</snippet>");
+            writer.println("     <snippet>" + URLEncoder.encode(
+                    (page.getContent() != null ? page.getContent() : ""), "UTF-8") + "</snippet>");
             writer.println("  </document>");
         }
         writer.println("</searchresult>");
@@ -136,6 +145,9 @@ public class HypertextWriter {
         writer.println("\t<edges>");
         int i = 0;
         for (HyperPage page : pagesToWrite){
+            if (page.getOutcomingUrl() == null){
+                continue;
+            }
             for (String urlTo : page.getOutcomingUrl()) {
                 int targetId;
                 if (urlIndex.contains(urlTo)) {
