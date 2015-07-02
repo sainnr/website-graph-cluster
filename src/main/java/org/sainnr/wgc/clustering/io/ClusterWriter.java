@@ -6,6 +6,8 @@ import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.Calendar;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * Created by Vladimir on 15.05.2015.
@@ -48,26 +50,21 @@ public class ClusterWriter {
     public String writeCugarClustersXML(Table table) throws FileNotFoundException, UnsupportedEncodingException {
         String filename = getFilename(1);
         PrintWriter writer = new PrintWriter(filename, "UTF-8");
+        writer.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+        writer.println("<cugar>");
         int rows = table.getRowCount();
-        int cols = table.getColumnCount();
-
-        //0-clusters
-//        for (int i = 0; i < cols; i++) {
-//            writer.print("\"" + table.getColumnName(i) + "\"");
-//            if (i != (cols - 1)) {
-//                writer.print(",");
-//            }
-//        }
-//        writer.println();
-//        for (int i = 0; i < rows; i++) {
-//            for (int j = 0; j < cols; j++) {
-//                writer.print("\"" + table.get(i, j) + "\"");
-//                if (j != (cols - 1)) {
-//                    writer.print(",");
-//                }
-//            }
-//            writer.println();
-//        }
+        for (int i = 0; i < rows; i++) {
+            Set<String> clusters = (TreeSet<String>) table.get(i, 0);
+            if (clusters == null || clusters.size() == 0){
+                continue;
+            }
+            writer.println("\t<group id=\"" + table.get(i, 5) + "\" size=\"" + table.get(i, 4) + "\">");
+            for (String clust : clusters){
+                writer.println("\t\t<document name=\"" + clust + "\"/>");
+            }
+            writer.println("\t</group>");
+        }
+        writer.println("</cugar>");
         writer.close();
         return filename;
     }

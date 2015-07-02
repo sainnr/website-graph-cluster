@@ -46,6 +46,10 @@ public class HypertextWriter {
         Set<HyperPage> pagesToWrite = structureToWrite.getPages();
         List<String> urlIndex = structureToWrite.getUrlIndex();
         for (HyperPage page : pagesToWrite){
+            log.trace("Writing page: " + page.getUrl());
+            if (page.getOutcomingUrl() == null){
+                continue;
+            }
             for (String urlTo : page.getOutcomingUrl()){
                 writer.println(page.getId() + "," + urlIndex.indexOf(urlTo) + "," + page.getWeight(urlTo));
             }

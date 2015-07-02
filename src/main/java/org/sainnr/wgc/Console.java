@@ -129,8 +129,9 @@ public class Console {
         HypertextStructure structure = (new DBLoader()).loadHypertext();
         HypertextWriter writer = new HypertextWriter(domain);
 //        writer.writeMapUrl(structure);
+        writer.writeMapIds(structure);
 //        writer.writeCarrot2XML(structure);
-        writer.writeGEXF(structure);
-        writer.writeIndex(structure);
+//        writer.writeGEXF(structure);
+//        writer.writeIndex(structure);
     }
 }

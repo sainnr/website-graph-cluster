@@ -32,18 +32,20 @@ public class ClusteringConsole {
         PatternLayout pattern = new PatternLayout(DEFAULT_PATTERN_LAYOUT);
         RollingFileAppender appender = new RollingFileAppender(pattern, "logs/clustering.log");
         Logger rootLogger = Logger.getRootLogger();
-        rootLogger.setLevel(Level.INFO);
+        rootLogger.setLevel(Level.TRACE);
         rootLogger.addAppender(appender);
     }
 
     public static void main(String[] args) throws IOException, XMLStreamException {
         setFileLogger();
-        testReadCarrot2Clusters();
+        testClustering();
     }
 
     static void testClustering() throws FileNotFoundException, UnsupportedEncodingException {
         String htFile = "hypertext/ht_cm_aksworg_1434527868.csv";
+//        String htFile = "hypertext/ht_cm_ssturu_1435871879.csv";
         String domain = "aksw.org";
+//        String domain = "sstu.ru";
         double threshold = 1.0;
         String[] params = new String[4];
         params[0] = "Superset";
@@ -52,7 +54,8 @@ public class ClusteringConsole {
         params[3] = "on";
         ClusteringAlgorithm algo = new ClusteringAlgorithm(ClusteringAlgorithm.Algorithm.BF, htFile);
         Table results = algo.cluster(threshold, params);
-        (new ClusterWriter(domain)).writeCugarClustersPlain(results);
+//        (new ClusterWriter(domain)).writeCugarClustersPlain(results);
+        (new ClusterWriter(domain)).writeCugarClustersXML(results);
     }
 
     static void testReadCarrot2Clusters() throws FileNotFoundException, XMLStreamException {
