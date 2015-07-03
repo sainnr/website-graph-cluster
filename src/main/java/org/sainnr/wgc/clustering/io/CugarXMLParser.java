@@ -31,7 +31,7 @@ public class CugarXMLParser {
                     if ("group".equals(reader.getLocalName())) {
                         cluster = new SingleCluster();
                         cluster.setId(Integer.parseInt(reader.getAttributeValue(0)));
-                        cluster.setScore(Double.parseDouble(reader.getAttributeValue(2)));
+//                        cluster.setScore(Double.parseDouble(reader.getAttributeValue(1)));
                         docs = new HashSet<Integer>();
                     }
                     if ("document".equals(reader.getLocalName())) {

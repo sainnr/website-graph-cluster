@@ -4,6 +4,7 @@ import org.apache.log4j.*;
 import org.sainnr.wgc.clustering.data.SingleCluster;
 import org.sainnr.wgc.clustering.io.Carrot2XMLParser;
 import org.sainnr.wgc.clustering.io.ClusterWriter;
+import org.sainnr.wgc.clustering.io.CugarXMLParser;
 import prefuse.data.Table;
 
 import javax.xml.stream.XMLStreamException;
@@ -38,11 +39,13 @@ public class ClusteringConsole {
 
     public static void main(String[] args) throws IOException, XMLStreamException {
         setFileLogger();
-        testClustering();
+        testReadCarrot2Clusters();
+        testReadCugarClusters();
     }
 
     static void testClustering() throws FileNotFoundException, UnsupportedEncodingException {
-        String htFile = "hypertext/ht_cm_aksworg_1434527868.csv";
+//        String htFile = "hypertext/ht_cm_aksworg_1434527868.csv";
+        String htFile = "hypertext/ht_cm_aksworg_1435962555.csv";
 //        String htFile = "hypertext/ht_cm_ssturu_1435871879.csv";
         String domain = "aksw.org";
 //        String domain = "sstu.ru";
@@ -59,8 +62,14 @@ public class ClusteringConsole {
     }
 
     static void testReadCarrot2Clusters() throws FileNotFoundException, XMLStreamException {
-        String file = "clusterscarrot2_lingo_clust.xml";
+        String file = "clusters/carrot_ht_cc2_aksworg_1435962555.xml";
         Set<SingleCluster> clusters = (new Carrot2XMLParser()).readFile(new File(file));
-        System.out.println(clusters);
+        System.out.println("Carrot clusters found: " + clusters.size());
+    }
+
+    static void testReadCugarClusters() throws FileNotFoundException, XMLStreamException {
+        String file = "clusters/clust_aksworg_1435962668.xml";
+        Set<SingleCluster> clusters = (new CugarXMLParser()).readFile(new File(file));
+        System.out.println("Cugar clusters found: " + clusters.size());
     }
 }

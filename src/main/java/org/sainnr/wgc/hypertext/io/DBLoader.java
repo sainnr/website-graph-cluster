@@ -16,11 +16,11 @@ public class DBLoader {
     private static final Log log = LogFactory.getLog(DBLoader.class);
     public static final String LOAD_PAGES_WITH_TEXT =
             "select \n" +
-            "\tv.verticle_id,\n" +
-            "    v.url,\n" +
-            "    t.text\n" +
-            "from verticles v, texts t\n" +
-            "where t.verticle_id = v.verticle_id";
+            "   v.verticle_id,\n" +
+            "   v.url,\n" +
+            "   t.text\n" +
+            "from verticles v left join texts t \n" +
+            "on v.verticle_id = t.verticle_id";
     public static final String LOAD_OUTCOMING_URLS =
             "select \n" +
             "\tv1.url as \"from\",\n" +

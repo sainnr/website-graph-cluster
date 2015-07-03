@@ -45,13 +45,19 @@ public class HypertextWriter {
         PrintWriter writer = new PrintWriter(filename, "UTF-8");
         Set<HyperPage> pagesToWrite = structureToWrite.getPages();
         List<String> urlIndex = structureToWrite.getUrlIndex();
+        List<String> filesIndex = structureToWrite.getFilesIndex();
         for (HyperPage page : pagesToWrite){
             log.trace("Writing page: " + page.getUrl());
             if (page.getOutcomingUrl() == null){
                 continue;
             }
             for (String urlTo : page.getOutcomingUrl()){
-                writer.println(page.getId() + "," + urlIndex.indexOf(urlTo) + "," + page.getWeight(urlTo));
+                int indexTo = ((filesIndex!=null && filesIndex.contains(urlTo))
+                        ? filesIndex.indexOf(urlTo) : urlIndex.indexOf(urlTo) );
+                if (indexTo == -1){
+                    log.warn("Cannot find index for url " + urlTo);
+                }
+                writer.println(page.getId() + "," + indexTo + "," + page.getWeight(urlTo));
             }
         }
         writer.close();

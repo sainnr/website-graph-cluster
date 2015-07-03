@@ -89,13 +89,14 @@ public class Console {
     }
 
     public static void testHypertextReader() throws IOException {
-//        String filename = "hypertext/ht_cm_ssturu_1434612250.csv";
-        String filename = "hypertext/pagegroups.csv";
+        String filename = "hypertext/ht_cm_aksworg_1434483791.csv";
+//        String filename = "hypertext/pagegroups.csv";
         HypertextStructure structure = (new HypertextReader()).readCSVUrlMapToHypertext(filename);
-        HypertextWriter writer = new HypertextWriter("sstu.ru");
-        writer.writeIndex(structure);
+        HypertextWriter writer = new HypertextWriter("aksw.org");
+//        writer.writeIndex(structure);
         writer.writeMapIds(structure);
-        writer.writeGEXF(structure);
+//        writer.writeGEXF(structure);
+        writer.writeCarrot2XML(structure);
 //        System.out.println(structure);
     }
 
@@ -123,15 +124,15 @@ public class Console {
     }
 
     static void testDBLoad() throws FileNotFoundException, UnsupportedEncodingException {
-//        String domain = "aksw.org";
-        String domain = "sstu.ru";
+        String domain = "aksw.org";
+//        String domain = "sstu.ru";
         DBConnector.setDefaultDBName(domain);
         HypertextStructure structure = (new DBLoader()).loadHypertext();
         HypertextWriter writer = new HypertextWriter(domain);
 //        writer.writeMapUrl(structure);
         writer.writeMapIds(structure);
-//        writer.writeCarrot2XML(structure);
-//        writer.writeGEXF(structure);
+        writer.writeCarrot2XML(structure);
+        writer.writeGEXF(structure);
 //        writer.writeIndex(structure);
     }
 }
