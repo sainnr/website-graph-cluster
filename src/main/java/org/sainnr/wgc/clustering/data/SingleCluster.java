@@ -1,5 +1,6 @@
 package org.sainnr.wgc.clustering.data;
 
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -8,8 +9,8 @@ import java.util.Set;
 public class SingleCluster {
 
     int id;
-    Set<Integer> docIds;
-    Set<String> keys;
+    List<Integer> docIds;
+    List<String> keys;
     double score;
 
     public int getId() {
@@ -20,19 +21,19 @@ public class SingleCluster {
         this.id = id;
     }
 
-    public Set<Integer> getDocIds() {
+    public List<Integer> getDocIds() {
         return docIds;
     }
 
-    public void setDocIds(Set<Integer> docIds) {
+    public void setDocIds(List<Integer> docIds) {
         this.docIds = docIds;
     }
 
-    public Set<String> getKeys() {
+    public List<String> getKeys() {
         return keys;
     }
 
-    public void setKeys(Set<String> keys) {
+    public void setKeys(List<String> keys) {
         this.keys = keys;
     }
 

@@ -1,6 +1,7 @@
 package org.sainnr.wgc.clustering;
 
 import org.apache.log4j.*;
+import org.sainnr.wgc.clustering.data.ClustersIntersection;
 import org.sainnr.wgc.clustering.data.SingleCluster;
 import org.sainnr.wgc.clustering.io.Carrot2XMLParser;
 import org.sainnr.wgc.clustering.io.ClusterWriter;
@@ -12,7 +13,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.util.Set;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by Vladimir on 02.07.2015.
@@ -39,8 +41,7 @@ public class ClusteringConsole {
 
     public static void main(String[] args) throws IOException, XMLStreamException {
         setFileLogger();
-        testReadCarrot2Clusters();
-        testReadCugarClusters();
+        tesIntersectClusters();
     }
 
     static void testClustering() throws FileNotFoundException, UnsupportedEncodingException {
@@ -61,15 +62,29 @@ public class ClusteringConsole {
         (new ClusterWriter(domain)).writeCugarClustersXML(results);
     }
 
-    static void testReadCarrot2Clusters() throws FileNotFoundException, XMLStreamException {
+    static List<SingleCluster> testReadCarrot2Clusters() throws FileNotFoundException, XMLStreamException {
         String file = "clusters/carrot_ht_cc2_aksworg_1435962555.xml";
-        Set<SingleCluster> clusters = (new Carrot2XMLParser()).readFile(new File(file));
+        List<SingleCluster> clusters = (new Carrot2XMLParser()).readFile(new File(file));
         System.out.println("Carrot clusters found: " + clusters.size());
+        return clusters;
     }
 
-    static void testReadCugarClusters() throws FileNotFoundException, XMLStreamException {
+    static List<SingleCluster> testReadCugarClusters() throws FileNotFoundException, XMLStreamException {
         String file = "clusters/clust_aksworg_1435962668.xml";
-        Set<SingleCluster> clusters = (new CugarXMLParser()).readFile(new File(file));
+        List<SingleCluster> clusters = (new CugarXMLParser()).readFile(new File(file));
         System.out.println("Cugar clusters found: " + clusters.size());
+        return clusters;
     }
+
+    static void tesIntersectClusters() throws FileNotFoundException, XMLStreamException {
+        ClustersIntersection intersection = new ClustersIntersection(testReadCarrot2Clusters());
+        intersection.evaluateIntersection(testReadCugarClusters());
+        double[] precision = intersection.getMaxPrecisionValues();
+        double[] recall = intersection.getMaxRecallValues();
+        double[] fMeasure = intersection.getFMeasureValues();
+        System.out.println("Precisions: " + Arrays.toString(precision) + "; Avg: " + intersection.getAvgPrecision());
+        System.out.println("Recalls: " + Arrays.toString(recall) + "; Avg: " + intersection.getAvgRecall());
+        System.out.println("F-Measures: " + Arrays.toString(fMeasure) + "; Avg: " + intersection.getAvgFMeasure());
+    }
+
 }
