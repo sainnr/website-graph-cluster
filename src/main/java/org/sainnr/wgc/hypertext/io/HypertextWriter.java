@@ -1,5 +1,7 @@
 package org.sainnr.wgc.hypertext.io;
 
+import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sainnr.wgc.hypertext.data.HyperPage;
@@ -117,10 +119,10 @@ public class HypertextWriter {
         Set<HyperPage> pagesToWrite = structureToWrite.getPages();
         for (HyperPage page : pagesToWrite){
             writer.println("  <document id=\"" + page.getId() + "\">");
-            writer.println("     <title>" + page.getTitle() + "</title>");
-            writer.println("     <url>" + URLEncoder.encode(page.getUrl(), "UTF-8") + "</url>");
-            writer.println("     <snippet>" + URLEncoder.encode(
-                    (page.getContent() != null ? page.getContent() : ""), "UTF-8") + "</snippet>");
+            writer.println("     <title><![CDATA[" + page.getTitle() + "]]></title>");
+            writer.println("     <url>" + StringEscapeUtils.escapeXml(page.getUrl()) + "</url>");
+            writer.println("     <snippet><![CDATA[" + (
+                    page.getContent() != null ? page.getContent() : "") + "]]></snippet>");
             writer.println("  </document>");
         }
         writer.println("</searchresult>");

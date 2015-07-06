@@ -118,7 +118,8 @@ public class MultiParser {
             log.warn("No texts found");
         }
         log.trace(uniteText);
-        return StringEscapeUtils.escapeXml(uniteText);
+//        return StringEscapeUtils.escapeXml(uniteText);
+        return uniteText;
     }
 
     private String getTitleFromPage(){
@@ -132,7 +133,8 @@ public class MultiParser {
         } else {
             log.warn("No title found");
         }
-        return StringEscapeUtils.escapeXml(fullTitle);
+//        return StringEscapeUtils.escapeXml(fullTitle);
+        return fullTitle;
     }
 
     public void setReserveTemplatePaths(String[] reserveTemplatePaths) {

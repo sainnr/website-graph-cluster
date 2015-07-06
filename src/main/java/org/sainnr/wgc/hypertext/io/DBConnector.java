@@ -14,11 +14,16 @@ import java.sql.SQLException;
  * @since 28.11.13
  */
 public class DBConnector {
-    static String defaultDbName = "sitegraph_aksw";
+    static String defaultDbName = "wsc_aksw";
+    static boolean oldMode = false;
 
-    public static final String DB_AKSW = "sitegraph_aksw";
-    public static final String DB_MUSEUM = "sitegraph_museum";
-    public static final String DB_SSTU = "sitegraph";
+    public static final String DB_AKSW = "wsc_aksw";
+    public static final String DB_MUSEUM = "wsc_museum";
+    public static final String DB_SSTU = "wsc_sstu";
+
+    public static final String DB_AKSW_OLD = "sitegraph_aksw";
+    public static final String DB_MUSEUM_OLD = "sitegraph_museum";
+    public static final String DB_SSTU_OLD = "sitegraph";
     private DataSource ds;
     private String dsName;
 
@@ -69,7 +74,7 @@ public class DBConnector {
         MysqlDataSource dataSource = new MysqlDataSource();
         dataSource.setUser("vlsa");
         dataSource.setPassword("vlsa");
-        dataSource.setUrl("jdbc:mysql://localhost:3306/" + name);
+        dataSource.setUrl("jdbc:mysql://localhost:3306/" + name + "?useServerPrepStmts=false&rewriteBatchedStatements=true");
         return dataSource;
     }
 

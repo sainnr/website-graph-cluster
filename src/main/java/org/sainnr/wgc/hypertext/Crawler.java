@@ -15,13 +15,20 @@ import java.util.*;
  */
 public class Crawler {
 
+    private static final Log log = LogFactory.getLog(Crawler.class);
+    public static final boolean PURIFY = true;
+
     String domain;
     String templatePath;
     String[] reserveTemplatePaths;
     String encoding;
     boolean skipText;
 
-    private static final Log log = LogFactory.getLog(Crawler.class);
+    Stack<String> urlStack;
+    List<String> urlIndex;
+    List<String> mediaIndex;
+    List<String> brokenLinks;
+    Set<HyperPage> pages;
 
     public Crawler(String domain) {
         this.domain = domain;
@@ -32,7 +39,7 @@ public class Crawler {
         long startTime = System.currentTimeMillis();
 
         Map<String, Set<String>> pagesParsed = new HashMap<String, Set<String>>();
-        Stack<String> urlStack = new Stack<String>();
+        urlStack = new Stack<String>();
         Set<String> linksOnPage;
         String curUrl;
         urlStack.push(startPage);
@@ -60,7 +67,7 @@ public class Crawler {
         long startTime = System.currentTimeMillis();
 
         Map<String, Set<String>> pagesParsed = new HashMap<String, Set<String>>();
-        Stack<String> urlStack = new Stack<String>();
+        urlStack = new Stack<String>();
         Set<String> linksOnPage;
         String curUrl;
         urlStack.push(startPage);
@@ -85,9 +92,9 @@ public class Crawler {
         long startTime = System.currentTimeMillis();
 
         HypertextStructure structure = new HypertextStructure();
-        List<String> urlIndex = new ArrayList<String>();
-        List<String> filesIndex = new ArrayList<String>();
-        Set<HyperPage> pages = new HashSet<HyperPage>();
+        urlIndex = new ArrayList<String>();
+        mediaIndex = new ArrayList<String>();
+        pages = new HashSet<HyperPage>();
 
         MultiParser parser = null;
         try {
@@ -109,11 +116,11 @@ public class Crawler {
 
         // assume all non-parsed as "files"
         for (String link : page.getOutcomingUrl()) {
-            filesIndex.add(link);
+            mediaIndex.add(link);
         }
         structure.setPages(pages);
         structure.setUrlIndex(urlIndex);
-        structure.setFilesIndex(filesIndex);
+        structure.setFilesIndex(mediaIndex);
 
         long endTime = System.currentTimeMillis();
         log.info("Parsing took " + (endTime - startTime) / 1000 + " s");
@@ -124,12 +131,15 @@ public class Crawler {
         long startTime = System.currentTimeMillis();
 
         HypertextStructure structure = new HypertextStructure();
-        List<String> urlIndex = new ArrayList<String>();
-        List<String> filesIndex = new ArrayList<String>();
-        List<String> brokenLinks = new ArrayList<String>();
-        Set<HyperPage> pages = new HashSet<HyperPage>();
+        urlIndex = new ArrayList<String>();
+        mediaIndex = new ArrayList<String>();
+        brokenLinks = new ArrayList<String>();
+        pages = new HashSet<HyperPage>();
 
-        Stack<String> urlStack = new Stack<String>();
+        if (PURIFY) {
+            startPage = purify(startPage);
+        }
+        urlStack = new Stack<String>();
         urlStack.push(startPage);
         String curUrl;
 
@@ -157,15 +167,15 @@ public class Crawler {
 
             for (String link : curPage.getOutcomingUrl()) {
                 if (!LinkParser.isWebpage(link)){
-                    if (!filesIndex.contains(link)) {
-                        filesIndex.add(link);
+                    if (!mediaIndex.contains(link)) {
+                        mediaIndex.add(link);
                     }
                     continue;
                 }
-                if (!urlStack.contains(link) && !urlIndex.contains(link)
-                &&  !urlStack.contains(link + ".html") && !urlIndex.contains(link + ".html")
-                &&  !urlStack.contains(link.replace(".html", "")) && !urlIndex.contains(link.replace(".html", ""))
-                        ){
+                if (PURIFY) {
+                    link = purify(link);
+                }
+                if (!isVisited(link)){
                     urlStack.push(link);
                 } else {
                     log.trace("Skipping " + link);
@@ -175,7 +185,7 @@ public class Crawler {
 
         structure.setPages(pages);
         structure.setUrlIndex(urlIndex);
-        structure.setFilesIndex(filesIndex);
+        structure.setFilesIndex(mediaIndex);
         structure.setBrokenUrls(brokenLinks);
 
         long endTime = System.currentTimeMillis();
@@ -183,7 +193,10 @@ public class Crawler {
         return structure;
     }
 
-    private HyperPage parseSinglePage(String url) throws IOException {
+    protected HyperPage parseSinglePage(String url) throws IOException {
+        if (PURIFY){
+            url = "http://" + url;
+        }
         MultiParser parser = new MultiParser(domain, url, encoding);
         parser.setTemplatePath(templatePath);
         parser.setReserveTemplatePaths(reserveTemplatePaths);
@@ -191,6 +204,41 @@ public class Crawler {
         HyperPage page = parser.parsePage();
         log.trace("Page " + page.getUrl() + " parsed");
         return page;
+    }
+
+    public String purify(String url){
+        if (url == null || url.length() == 0){
+            return url;
+        }
+        if (url.startsWith("http://")){
+            url = url.substring(7);
+        } else if (url.startsWith("https://")) {
+            url = url.substring(8);
+        } else {
+            log.warn("URL has no http/https prefix: " + url);
+        }
+        if (url.startsWith("www.")){
+            url = url.substring(4);
+        }
+        if (url.endsWith("/")){
+            url = url.substring(0, url.length()-1);
+        }
+        int sharp = url.indexOf('#');
+        if (sharp != -1){
+            url = url.substring(0, sharp);
+        }
+        return url;
+    }
+
+    protected boolean isVisited(String url){
+        if (url == null || url.length() == 0){
+            return false;
+        }
+        if (url.endsWith(".html")) {
+            url = url.substring(0, url.length()-5);
+        }
+        return urlStack.contains(url) || urlIndex.contains(url)
+                ||  urlStack.contains(url + ".html") || urlIndex.contains(url + ".html");
     }
 
     public String getTemplatePath() {
