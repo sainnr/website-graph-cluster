@@ -43,7 +43,8 @@ public class Console {
 
     public static void main(String[] args) throws IOException {
         setFileLogger();
-//        System.out.println((new Crawler("tst.org")).purify("http://tst.org/sdfs#"));
+        testCrawlFull();
+        testApplyWeights();
         testDBLoad();
     }
 
@@ -147,34 +148,34 @@ public class Console {
         crawler.batchDBParse(url);
     }
 
-    static void parseMissedPages() throws IOException {
-        List<String> missed = new LinkedList<String>();
-        missed.add("http://sstu.ru/obshchestvennaya-zhizn/afisha/museum");
-        missed.add("http://sstu.ru/universitet/struktura.php");
-        missed.add("http://sstu.ru/news/predstaviteli-firmy-lg-zainteresovalis-proektom-uchenykh-inetm.html");
-        missed.add("http://sstu.ru/aspirantu/dissertation");
-        missed.add("http://sstu.ru/obrazovanie/fakultety-i-instituty/mfpit/struktura/dksh.php");
-        missed.add("http://sstu.ru/upravlenie/upravleniya-i-otdely/uit/okpm.php");
-        missed.add("http://sstu.ru/news/na-kafedre-fmtm-proshla-zashchita-magisterskikh-dissertatsiy.html");
-        missed.add("http://sstu.ru/nauka/nauchnye-izdaniya/innovatsionnaya-deyatelnost");
-        missed.add("http://sstu.ru/nauka/nauchnye-izdaniya/innovatsionnaya-deyatelnost/pravila-publikatsii.php");
-        missed.add("http://sstu.ru/nauka/nauchnye-izdaniya/innovatsionnaya-deyatelnost/redaktsionnaya-kollegiya.php");
-        missed.add("http://sstu.ru/nauka/nauchnye-izdaniya/innovatsionnaya-deyatelnost/arkhiv.php");
-        missed.add("http://sstu.ru/sotrudnichestvo/proekt-nanobridge.php");
-        missed.add("http://sstu.ru/upravlenie/uchenyy-sovet");
-        missed.add("http://sstu.ru/upravlenie/upravleniya-i-otdely/uiso/gazety-i-zhurnaly/zhurnal-novus-trend");
-        missed.add("http://sstu.ru/upravlenie/ofitsialnaya-informatsiya");
-        missed.add("http://sstu.ru/obrazovanie/obrazovatelnye-programmy/uchebnye-plany-ipu");
-        missed.add("http://sstu.ru/upravlenie/ofitsialnaya-informatsiya/uchebnye-plany-fgos-vo");
-        missed.add("http://sstu.ru/obrazovanie/obrazovatelnye-programmy/uchebnye-plany-fgos-vpo-zo");
-        missed.add("http://sstu.ru/obrazovanie/obrazovatelnye-programmy/uchebnye-plany-fgos-vpo-zs");
-
-        int lastIndex = 25857;
-        String domain = "sstu.ru";
-        DBConnector.setDefaultDBName(domain);
-        DBCrawler crawler = new DBCrawler(domain);
-        crawler.setTemplatePath("div.page-container");
-        crawler.setReserveTemplatePaths(new String[]{"div#content"});
-        crawler.parseCollectionToDB(missed, lastIndex);
-    }
+//    static void parseMissedPages() throws IOException {
+//        List<String> missed = new LinkedList<String>();
+//        missed.add("http://sstu.ru/obshchestvennaya-zhizn/afisha/museum");
+//        missed.add("http://sstu.ru/universitet/struktura.php");
+//        missed.add("http://sstu.ru/news/predstaviteli-firmy-lg-zainteresovalis-proektom-uchenykh-inetm.html");
+//        missed.add("http://sstu.ru/aspirantu/dissertation");
+//        missed.add("http://sstu.ru/obrazovanie/fakultety-i-instituty/mfpit/struktura/dksh.php");
+//        missed.add("http://sstu.ru/upravlenie/upravleniya-i-otdely/uit/okpm.php");
+//        missed.add("http://sstu.ru/news/na-kafedre-fmtm-proshla-zashchita-magisterskikh-dissertatsiy.html");
+//        missed.add("http://sstu.ru/nauka/nauchnye-izdaniya/innovatsionnaya-deyatelnost");
+//        missed.add("http://sstu.ru/nauka/nauchnye-izdaniya/innovatsionnaya-deyatelnost/pravila-publikatsii.php");
+//        missed.add("http://sstu.ru/nauka/nauchnye-izdaniya/innovatsionnaya-deyatelnost/redaktsionnaya-kollegiya.php");
+//        missed.add("http://sstu.ru/nauka/nauchnye-izdaniya/innovatsionnaya-deyatelnost/arkhiv.php");
+//        missed.add("http://sstu.ru/sotrudnichestvo/proekt-nanobridge.php");
+//        missed.add("http://sstu.ru/upravlenie/uchenyy-sovet");
+//        missed.add("http://sstu.ru/upravlenie/upravleniya-i-otdely/uiso/gazety-i-zhurnaly/zhurnal-novus-trend");
+//        missed.add("http://sstu.ru/upravlenie/ofitsialnaya-informatsiya");
+//        missed.add("http://sstu.ru/obrazovanie/obrazovatelnye-programmy/uchebnye-plany-ipu");
+//        missed.add("http://sstu.ru/upravlenie/ofitsialnaya-informatsiya/uchebnye-plany-fgos-vo");
+//        missed.add("http://sstu.ru/obrazovanie/obrazovatelnye-programmy/uchebnye-plany-fgos-vpo-zo");
+//        missed.add("http://sstu.ru/obrazovanie/obrazovatelnye-programmy/uchebnye-plany-fgos-vpo-zs");
+//
+//        int lastIndex = 25857;
+//        String domain = "sstu.ru";
+//        DBConnector.setDefaultDBName(domain);
+//        DBCrawler crawler = new DBCrawler(domain);
+//        crawler.setTemplatePath("div.page-container");
+//        crawler.setReserveTemplatePaths(new String[]{"div#content"});
+//        crawler.parseCollectionToDB(missed, lastIndex);
+//    }
 }
