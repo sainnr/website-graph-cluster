@@ -18,12 +18,18 @@ import java.security.GeneralSecurityException;
 public class Statistics {
 
     String domain;
+    public static final int MIN_VISITS = 0;
+    public static final int MIN_TIME = 2;
 
     public Statistics(String domain) {
         this.domain = domain;
     }
 
     public String getVisitedPages(String startDate, String endDate) throws GeneralSecurityException, IOException {
+        return (new GaDataWriter("visited", domain, startDate, endDate)).writeCsv(getVisitedPagesRaw(startDate, endDate));
+    }
+
+    public GaData getVisitedPagesRaw(String startDate, String endDate) throws GeneralSecurityException, IOException {
         Authorization loader = new Authorization();
         HttpTransport transport = GoogleNetHttpTransport.newTrustedTransport();
         Analytics analytics = (new AnalyticsBuilder(
@@ -35,11 +41,10 @@ public class Statistics {
                 .setMetrics("ga:pageviews,ga:timeOnPage")
                 .setDimensions("ga:nextPagePath,ga:landingPagePath")
                 .setSort("-ga:pageviews")
-                .setFilter("ga:pageviews>2;ga:timeOnPage>2")
+                .setFilter("ga:pageviews>"+MIN_VISITS+";ga:timeOnPage>"+MIN_TIME)
 //                .setFilter("ga:timeOnPage>1")
                 .setMaxResults(100000);
-        GaData gaData = query.execute();
-        return (new GaDataWriter("visited", domain, startDate, endDate)).writeCsv(gaData);
+        return query.execute();
     }
 
     public String resolveAccount(){

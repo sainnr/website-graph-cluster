@@ -10,6 +10,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.sainnr.wgc.hypertext.Crawler;
 
 import java.io.IOException;
 import java.net.URL;
@@ -21,6 +22,7 @@ import java.util.Set;
  *
  * @author sainnr
  */
+@Deprecated
 public class ParseHelper {
 
     private static String[] blackList = new String[]{

@@ -16,24 +16,29 @@ public class DBLoader {
     private static final Log log = LogFactory.getLog(DBLoader.class);
     public static final String LOAD_PAGES_WITH_TEXT =
             "select id, url, title, text from pages";
+    public static final String LOAD_PAGES_NO_TEXT =
+            "select id, url from pages";
     public static final String LOAD_TEMP_HREFS =
             "select url_from, url_to from temp_hrefs";
 
     boolean tempHrefs = false;
     boolean noHrefs = false;
+    boolean noText = false;
     int textLimit = -1;
 
-    public HypertextStructure loadHypertext(){
+    public HypertextStructure loadHypertextForCarrot2(){
         HypertextStructure structure = new HypertextStructure();
-        preloadPages(structure);
+        noText = false;
+        noHrefs = true;
+        preloadPagesTempHrefs(structure);
         return structure;
     }
 
-    void preloadPages(HypertextStructure structure){
+    void preloadPagesTempHrefs(HypertextStructure structure){
         Set<HyperPage> pages = new HashSet<HyperPage>();
         Map<String, Set<String>> urls = new HashMap<String, Set<String>>();
         if (!noHrefs) {
-            urls = tempHrefs ? preloadTempHrefs() : preloadTempHrefs()  /*preloadOutUrls()*/;
+            urls = preloadTempHrefsBulk();
         }
         Connection connection = null;
         Statement statement = null;
@@ -41,23 +46,25 @@ public class DBLoader {
         try {
             connection = getConnection();
             statement = connection.createStatement();
-            ResultSet rs = statement.executeQuery(LOAD_PAGES_WITH_TEXT);
+            ResultSet rs = statement.executeQuery(!noText ? LOAD_PAGES_WITH_TEXT : LOAD_PAGES_NO_TEXT);
             while(rs.next()){
+                HyperPage page = new HyperPage();
                 int id = rs.getInt(1);
                 if (id > maxId){
                     maxId = id;
                 }
                 String url = rs.getString(2);
-                String title = rs.getString(3);
-                String content = rs.getString(4);
-                if (textLimit != -1 && textLimit < content.length()){
-                    content = content.substring(0, textLimit);
+                if (!noText) {
+                    String title = rs.getString(3);
+                    String content = rs.getString(4);
+                    if (textLimit != -1 && textLimit < content.length()){
+                        content = content.substring(0, textLimit);
+                    }
+                    page.setTitle(title);
+                    page.setContent(content);
                 }
-                HyperPage page = new HyperPage();
                 page.setId(id);
                 page.setUrl(url);
-                page.setTitle(title);
-                page.setContent(content);
                 page.setOutcomingUrl(urls.get(url));
                 pages.add(page);
                 log.trace("Page loaded: " + url);
@@ -76,7 +83,7 @@ public class DBLoader {
         structure.setPages(pages);
     }
 
-    Map<String, Set<String>> preloadTempHrefs(){
+    Map<String, Set<String>> preloadTempHrefsBulk(){
         Map<String, Set<String>> urls = new HashMap<String, Set<String>>();
         Connection connection = null;
         Statement statement = null;
@@ -103,6 +110,51 @@ public class DBLoader {
             if (connection != null) try { connection.close(); } catch (SQLException e) {}
         }
         return urls;
+    }
+
+    void preloadPagesIteratively(HypertextStructure structure){
+        Set<HyperPage> pages = new HashSet<HyperPage>();
+        Connection connection = null;
+        Statement statement = null;
+        int maxId = 0;
+        try {
+            connection = getConnection();
+            statement = connection.createStatement();
+            ResultSet rs = statement.executeQuery( "" );
+            while(rs.next()){
+                HyperPage page = new HyperPage();
+                int id = rs.getInt(1);
+                if (id > maxId){
+                    maxId = id;
+                }
+                String url = rs.getString(2);
+                if (!noText) {
+                    String title = rs.getString(3);
+                    String content = rs.getString(4);
+                    if (textLimit != -1 && textLimit < content.length()){
+                        content = content.substring(0, textLimit);
+                    }
+                    page.setTitle(title);
+                    page.setContent(content);
+                }
+                page.setId(id);
+                page.setUrl(url);
+//                page.setOutcomingUrl(urls.get(url));
+                pages.add(page);
+                log.trace("Page loaded: " + url);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Cannot handle SQL query: " + LOAD_PAGES_WITH_TEXT, e);
+        } finally {
+            if (statement != null) try { statement.close(); } catch (SQLException e) {}
+            if (connection != null) try { connection.close(); } catch (SQLException e) {}
+        }
+        String[] urlArray = new String[maxId+1];
+        for (HyperPage page : pages){
+            urlArray[page.getId()] = page.getUrl();
+        }
+        structure.setUrlIndex(Arrays.asList(urlArray));
+        structure.setPages(pages);
     }
 
     Connection getConnection(){

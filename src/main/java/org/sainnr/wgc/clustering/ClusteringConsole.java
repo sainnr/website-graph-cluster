@@ -41,7 +41,7 @@ public class ClusteringConsole {
 
     public static void main(String[] args) throws IOException, XMLStreamException {
         setFileLogger();
-        tesIntersectClusters();
+        testClustering();
     }
 
     static void testClustering() throws FileNotFoundException, UnsupportedEncodingException {
@@ -53,8 +53,14 @@ public class ClusteringConsole {
         double threshold = 1.0;
         String[] params = new String[4];
         params[0] = "Superset";
+//        params[1] = "off";
+//        params[2] = "0";
+//        params[3] = "off";
+//        params[1] = "SGD* + RP";
+//        params[2] = "8000";
+//        params[3] = "off";
         params[1] = "on";
-        params[2] = "on";
+        params[2] = "0";
         params[3] = "on";
         ClusteringAlgorithm algo = new ClusteringAlgorithm(ClusteringAlgorithm.Algorithm.BF, htFile);
         Table results = algo.cluster(threshold, params);

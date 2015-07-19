@@ -206,7 +206,7 @@ public class Crawler {
         return page;
     }
 
-    public String purify(String url){
+    public static String purify(String url){
         if (url == null || url.length() == 0){
             return url;
         }

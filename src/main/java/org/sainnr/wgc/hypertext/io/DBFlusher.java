@@ -13,6 +13,7 @@ import java.util.*;
 public class DBFlusher {
 
     private static final Log log = LogFactory.getLog(DBFlusher.class);
+    public static final int URL_MAX_SIZE = 255;
     public static final String INSERT_PAGES_BATCH =
             "INSERT INTO pages (id, url, title, text, is_media) VALUES(?, ?, ?, ?, ?)";
     public static final String INSERT_TEMP_HREFS_BATCH =
@@ -28,7 +29,10 @@ public class DBFlusher {
             hrefs = new HashMap<String, Set<String>>();
             for (HyperPage page : pageSet) {
                 String url = page.getUrl();
-                statement.setInt(1, page.getId());
+                if (url.length() > URL_MAX_SIZE){
+                    url = url.substring(0, URL_MAX_SIZE);
+                }
+                statement.setInt(1, page.getId()+1);
                 statement.setString(2, url);
                 statement.setString(3, page.getTitle());
                 statement.setString(4, page.getContent());
@@ -53,6 +57,12 @@ public class DBFlusher {
         statement = connection.prepareStatement(INSERT_TEMP_HREFS_BATCH);
         for (String urlFrom : hrefs.keySet()) {
             for (String urlTo : hrefs.get(urlFrom)) {
+                if (urlTo.length() > URL_MAX_SIZE){
+                    urlTo = urlTo.substring(0, URL_MAX_SIZE);
+                }
+                if (urlFrom.length() > URL_MAX_SIZE){
+                    urlFrom = urlFrom.substring(0, URL_MAX_SIZE);
+                }
                 statement.setString(1, urlFrom);
                 statement.setString(2, urlTo);
                 statement.addBatch();

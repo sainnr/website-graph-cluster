@@ -129,7 +129,7 @@ public class Console {
 //        loader.setTextLimit(2000);
         loader.setTextLimit(1);
         loader.setTempHrefs(true);
-        HypertextStructure structure = loader.loadHypertext();
+        HypertextStructure structure = loader.loadHypertextForCarrot2();
         HypertextWriter writer = new HypertextWriter(domain);
 //        writer.writeCarrot2XML(structure);
         writer.writeMapIds(structure);

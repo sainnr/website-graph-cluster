@@ -1,5 +1,6 @@
 package org.sainnr.wgc.hypertext.parsers;
 
+import org.sainnr.wgc.hypertext.Crawler;
 import org.sainnr.wgc.hypertext.data.HyperPage;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
@@ -79,6 +80,9 @@ public class MultiParser {
                 if (LinkParser.isNative(url, domain)
 //                        && LinkParser.isWebpage(url)
                         && !LinkParser.inBlackList(url)){
+                    if (Crawler.PURIFY){
+                        url = Crawler.purify(url);
+                    }
                     linksSet.add(url);
                 } else{
                     log.trace("Skip it");
