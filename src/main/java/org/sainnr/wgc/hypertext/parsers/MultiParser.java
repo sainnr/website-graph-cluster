@@ -81,7 +81,7 @@ public class MultiParser {
 //                        && LinkParser.isWebpage(url)
                         && !LinkParser.inBlackList(url)){
                     if (Crawler.PURIFY){
-                        url = Crawler.purify(url);
+                        url = "http://" + Crawler.purify(url);
                     }
                     linksSet.add(url);
                 } else{

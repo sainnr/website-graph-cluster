@@ -8,6 +8,7 @@ import org.sainnr.wgc.hypertext.data.HyperPage;
 import org.sainnr.wgc.hypertext.data.HypertextStructure;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -40,7 +41,6 @@ public class HypertextWriter {
         }
         writer.close();
     }
-
     public String writeMapIds(HypertextStructure structureToWrite)
             throws FileNotFoundException, UnsupportedEncodingException {
         String filename = getFileName(1);
@@ -60,6 +60,24 @@ public class HypertextWriter {
                     log.warn("Cannot find index for url " + urlTo);
                 }
                 writer.println(page.getId() + "," + indexTo + "," + page.getWeight(urlTo));
+            }
+        }
+        writer.close();
+        return filename;
+    }
+
+    public String writeMapIdsSimple(HypertextStructure structureToWrite)
+            throws IOException {
+        String filename = getFileName(1);
+        PrintWriter writer = new PrintWriter(filename, "UTF-8");
+        Set<HyperPage> pagesToWrite = structureToWrite.getPages();
+        for (HyperPage page : pagesToWrite){
+            log.trace("Writing page: " + page.getUrl());
+            if (page.getOutcomingUrl() == null){
+                continue;
+            }
+            for (String urlTo : page.getOutcomingUrl()){
+                writer.println(page.getId() + "," + urlTo + "," + page.getWeight(urlTo));
             }
         }
         writer.close();

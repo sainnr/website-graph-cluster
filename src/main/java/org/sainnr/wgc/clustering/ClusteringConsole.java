@@ -45,12 +45,11 @@ public class ClusteringConsole {
     }
 
     static void testClustering() throws FileNotFoundException, UnsupportedEncodingException {
-//        String htFile = "hypertext/ht_cm_aksworg_1434527868.csv";
-        String htFile = "hypertext/ht_cm_aksworg_1435962555.csv";
-//        String htFile = "hypertext/ht_cm_ssturu_1435871879.csv";
+        String htFile = "hypertext/ht_cm_aksworg_1437428295.csv";
+//        String htFile = "hypertext/ht_cm_ssturu_1437379495.csv";
         String domain = "aksw.org";
 //        String domain = "sstu.ru";
-        double threshold = 1.0;
+        double threshold = 0.9;
         String[] params = new String[4];
         params[0] = "Superset";
 //        params[1] = "off";

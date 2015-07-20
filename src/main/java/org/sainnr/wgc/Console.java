@@ -37,15 +37,14 @@ public class Console {
         PatternLayout pattern = new PatternLayout(DEFAULT_PATTERN_LAYOUT);
         RollingFileAppender appender = new RollingFileAppender(pattern, "logs/console.log");
         Logger rootLogger = Logger.getRootLogger();
-        rootLogger.setLevel(Level.INFO);
+        rootLogger.setLevel(Level.TRACE);
         rootLogger.addAppender(appender);
     }
 
     public static void main(String[] args) throws IOException {
         setFileLogger();
-        testCrawlFull();
-        testApplyWeights();
-        testDBLoad();
+//        testCrawlBatch();
+        testLoadWeightGraph();
     }
 
     private static void testWriter() throws FileNotFoundException, UnsupportedEncodingException {
@@ -136,46 +135,26 @@ public class Console {
     }
 
     static void testCrawlBatch() throws FileNotFoundException, UnsupportedEncodingException {
-//        String domain = "aksw.org";
-        String domain = "sstu.ru";
+        String domain = "aksw.org";
+//        String domain = "sstu.ru";
         String url = "http://" + domain + "/";
         DBConnector.setDefaultDBName(domain);
         DBCrawler crawler = new DBCrawler(domain);
-//        crawler.setTemplatePath("article#content");
-        crawler.setTemplatePath("div.page-container");
-        crawler.setReserveTemplatePaths(new String[]{"div#content"});
+        crawler.setTemplatePath("article#content");
+//        crawler.setTemplatePath("div.page-container");
+//        crawler.setReserveTemplatePaths(new String[]{"div#content"});
 //        crawler.setSkipText(true);
         crawler.batchDBParse(url);
     }
 
-//    static void parseMissedPages() throws IOException {
-//        List<String> missed = new LinkedList<String>();
-//        missed.add("http://sstu.ru/obshchestvennaya-zhizn/afisha/museum");
-//        missed.add("http://sstu.ru/universitet/struktura.php");
-//        missed.add("http://sstu.ru/news/predstaviteli-firmy-lg-zainteresovalis-proektom-uchenykh-inetm.html");
-//        missed.add("http://sstu.ru/aspirantu/dissertation");
-//        missed.add("http://sstu.ru/obrazovanie/fakultety-i-instituty/mfpit/struktura/dksh.php");
-//        missed.add("http://sstu.ru/upravlenie/upravleniya-i-otdely/uit/okpm.php");
-//        missed.add("http://sstu.ru/news/na-kafedre-fmtm-proshla-zashchita-magisterskikh-dissertatsiy.html");
-//        missed.add("http://sstu.ru/nauka/nauchnye-izdaniya/innovatsionnaya-deyatelnost");
-//        missed.add("http://sstu.ru/nauka/nauchnye-izdaniya/innovatsionnaya-deyatelnost/pravila-publikatsii.php");
-//        missed.add("http://sstu.ru/nauka/nauchnye-izdaniya/innovatsionnaya-deyatelnost/redaktsionnaya-kollegiya.php");
-//        missed.add("http://sstu.ru/nauka/nauchnye-izdaniya/innovatsionnaya-deyatelnost/arkhiv.php");
-//        missed.add("http://sstu.ru/sotrudnichestvo/proekt-nanobridge.php");
-//        missed.add("http://sstu.ru/upravlenie/uchenyy-sovet");
-//        missed.add("http://sstu.ru/upravlenie/upravleniya-i-otdely/uiso/gazety-i-zhurnaly/zhurnal-novus-trend");
-//        missed.add("http://sstu.ru/upravlenie/ofitsialnaya-informatsiya");
-//        missed.add("http://sstu.ru/obrazovanie/obrazovatelnye-programmy/uchebnye-plany-ipu");
-//        missed.add("http://sstu.ru/upravlenie/ofitsialnaya-informatsiya/uchebnye-plany-fgos-vo");
-//        missed.add("http://sstu.ru/obrazovanie/obrazovatelnye-programmy/uchebnye-plany-fgos-vpo-zo");
-//        missed.add("http://sstu.ru/obrazovanie/obrazovatelnye-programmy/uchebnye-plany-fgos-vpo-zs");
-//
-//        int lastIndex = 25857;
+    static void testLoadWeightGraph() throws IOException {
 //        String domain = "sstu.ru";
-//        DBConnector.setDefaultDBName(domain);
-//        DBCrawler crawler = new DBCrawler(domain);
-//        crawler.setTemplatePath("div.page-container");
-//        crawler.setReserveTemplatePaths(new String[]{"div#content"});
-//        crawler.parseCollectionToDB(missed, lastIndex);
-//    }
+        String domain = "aksw.org";
+        String startDate = "2015-01-01";
+        String endDate = "2015-07-15";
+        DBConnector.setDefaultDBName(domain);
+        HypertextStructure structure = (new DBLoader()).loadWeightedPageLinkStructure(startDate,endDate);
+        (new HypertextWriter(domain)).writeMapIdsSimple(structure);
+    }
+
 }

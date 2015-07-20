@@ -46,8 +46,8 @@ public class DBGaDataWriter {
             connection = getConnection();
             statement = connection.prepareStatement(INSERT_WEIGHTS_BATCH);
             for (List<String> row : dataToWrite.getRows()) {
-                String urlFrom = row.get(1);
-                String urlTo = row.get(0);
+                String urlFrom = format(row.get(1));
+                String urlTo = format(row.get(0));
                 String value = row.get(2);
                 if (urlFrom.length() > URL_MAX_SIZE){
                     urlFrom = urlFrom.substring(0, URL_MAX_SIZE);
@@ -76,9 +76,10 @@ public class DBGaDataWriter {
         return 0;
     }
 
-    private String filter(String url){
-        if (url.endsWith("'") || url.endsWith("\\")){
-            url = url.substring(0, url.length() - 2);
+    private String format(String url){
+        url = "http://" + domainSuffix + url;
+        if (url.endsWith("/") || url.endsWith("#")){
+            url = url.substring(0, url.length() - 1);
         }
         return url;
     }

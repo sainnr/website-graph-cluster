@@ -136,9 +136,9 @@ public class Crawler {
         brokenLinks = new ArrayList<String>();
         pages = new HashSet<HyperPage>();
 
-        if (PURIFY) {
-            startPage = purify(startPage);
-        }
+//        if (PURIFY) {
+//            startPage = purify(startPage);
+//        }
         urlStack = new Stack<String>();
         urlStack.push(startPage);
         String curUrl;
@@ -172,9 +172,9 @@ public class Crawler {
                     }
                     continue;
                 }
-                if (PURIFY) {
-                    link = purify(link);
-                }
+//                if (PURIFY) {
+//                    link = purify(link);
+//                }
                 if (!isVisited(link)){
                     urlStack.push(link);
                 } else {
@@ -194,9 +194,9 @@ public class Crawler {
     }
 
     protected HyperPage parseSinglePage(String url) throws IOException {
-        if (PURIFY){
-            url = "http://" + url;
-        }
+//        if (PURIFY){
+//            url = "http://" + url;
+//        }
         MultiParser parser = new MultiParser(domain, url, encoding);
         parser.setTemplatePath(templatePath);
         parser.setReserveTemplatePaths(reserveTemplatePaths);

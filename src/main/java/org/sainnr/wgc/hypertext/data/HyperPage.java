@@ -9,6 +9,8 @@ import java.util.Set;
  */
 public class HyperPage {
 
+    public static final double DEFAULT_WEIGHT = 0.0;
+
     int id;
     String url;
     String title;
@@ -58,7 +60,7 @@ public class HyperPage {
 
     public double getWeight(String toUrl) {
         if (weights.get(toUrl) == null){
-            return 1.0;
+            return DEFAULT_WEIGHT;
         }
         return weights.get(toUrl);
     }

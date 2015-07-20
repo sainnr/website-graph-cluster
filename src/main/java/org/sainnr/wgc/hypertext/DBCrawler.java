@@ -28,10 +28,10 @@ public class DBCrawler extends Crawler {
         mediaIndex = new ArrayList<String>();
         brokenLinks = new ArrayList<String>();
         pages = new HashSet<HyperPage>();
-
-        if (PURIFY) {
-            startPage = purify(startPage);
-        }
+//
+//        if (PURIFY) {
+//            startPage = purify(startPage);
+//        }
         urlStack.push(startPage);
         String curUrl;
 
@@ -63,9 +63,9 @@ public class DBCrawler extends Crawler {
                     }
                     continue;
                 }
-                if (PURIFY) {
-                    link = purify(link);
-                }
+//                if (PURIFY) {
+//                    link = purify(link);
+//                }
                 if (!isVisited(link)){
                     urlStack.push(link);
                 } else {
